@@ -1277,14 +1277,8 @@
                             <line x1="4" y1="12" x2="20" y2="12"></line>
                         </svg>
                     </button>
-                    <button class="btn btn-icon btn-secondary" id="clipboard-import-btn" title="Add List from Clipboard (.json)" style="font-size: 1.1rem; display: none;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                            <line x1="9" y1="9" x2="15" y2="9"></line>
-                            <line x1="9" y1="13" x2="15" y2="13"></line>
-                            <line x1="9" y1="17" x2="13" y2="17"></line>
-                        </svg>
+                    <button class="btn btn-icon btn-secondary" id="paste-url-btn" title="Paste Encoded URL Data" style="font-size: 1.1rem;">
+                        🔗
                     </button>
                     <button class="btn btn-icon btn-secondary" id="update-btn" title="Check for Updates" style="font-size: 0.9rem;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1293,13 +1287,13 @@
                             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                         </svg>
                     </button>
-                <button class="btn btn-icon btn-secondary" id="install-btn" title="Install to Homescreen" style="font-size: 0.9rem;">
-                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 17v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"></path>
-                        <polyline points="8 12 12 16 16 12"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="16"></line>
-                    </svg>
-                </button>
+                    <button class="btn btn-icon btn-secondary" id="install-btn" title="Install to Homescreen" style="font-size: 0.9rem;">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 17v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"></path>
+                            <polyline points="8 12 12 16 16 12"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="16"></line>
+                        </svg>
+                    </button>
                     <a href="https://forms.gle/EAUg4ib2YRfrPScKA" target="_blank" rel="noopener noreferrer" class="btn btn-icon btn-secondary" title="Send Feedback" style="font-size: 0.9rem;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
@@ -1431,8 +1425,31 @@
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">
                     💾 Save Changes
-                </button>
-            </form>
+    <!-- Paste URL Modal -->
+    <div class="modal" id="paste-url-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Paste Encoded URL Data</h3>
+                <button class="close-modal" onclick="closeModal('paste-url-modal')">✕</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin-bottom: 15px; color: var(--text-light-secondary);">
+                    If your URL was too long or got truncated, paste the encoded data here.
+                </p>
+                <textarea 
+                    id="paste-url-input" 
+                    rows="8" 
+                    style="width: 100%; font-family: monospace; font-size: 12px; padding: 10px; border: 1px solid var(--border-light); border-radius: 5px; background: var(--bg-light-alt); resize: vertical;" 
+                    placeholder="Paste the encoded data here...&#10;&#10;You can paste:&#10;- Just the encoded part (after listforge-json/)&#10;- The full URL&#10;- The hash fragment (#/listforge-json/...)"
+                ></textarea>
+                <div style="margin-top: 10px; padding: 10px; background: var(--bg-light-alt); border-radius: 5px; font-size: 13px; color: var(--text-light-secondary);">
+                    <strong>💡 Tip:</strong> Copy everything after "listforge-json/" from the URL, or paste the entire URL.
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeModal('paste-url-modal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="loadFromPastedURL()">Load List</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1641,106 +1658,14 @@
             // Dark mode toggle
             document.getElementById('dark-mode-btn').addEventListener('click', toggleDarkMode);
 
-            // Add list button (file explorer only)
+            // Add list button (file explorer)
             document.getElementById('add-list-btn').addEventListener('click', () => {
                 document.getElementById('file-input').click();
             });
 
-            // Clipboard import button - IMPLEMENT (read from clipboard not working)
-            document.getElementById('clipboard-import-btn').addEventListener('click', async () => {
-                try {
-                    // Try to read from clipboard (check for files first)
-                    if (navigator.clipboard && navigator.clipboard.read) {
-                        try {
-                            const clipboardItems = await navigator.clipboard.read();
-                            
-                            // Look for JSON files in clipboard
-                            for (const item of clipboardItems) {
-                                for (const type of item.types) {
-                                    if (type === 'application/json' || type.endsWith('.json')) {
-                                        const blob = await item.getType(type);
-                                        const text = await blob.text();
-                                        const jsonData = JSON.parse(text);
-                                        
-                                        // Basic validation to check if it looks like an army list
-                                        if (jsonData && (jsonData.faction || jsonData.abilities || jsonData.name)) {
-                                            await processFileData(jsonData);
-                                            return;
-                                        } else {
-                                            alert('No valid army list data found in clipboard file. Please copy a valid JSON army list file.');
-                                            return;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // If no JSON files found, check for text content as fallback
-                            if (navigator.clipboard && navigator.clipboard.readText) {
-                                const clipboardText = await navigator.clipboard.readText();
-                                console.log('Clipboard text length:', clipboardText.length);
-                                
-                                // Check if clipboard has content before parsing
-                                if (!clipboardText || clipboardText.trim() === '') {
-                                    console.log('Clipboard is empty');
-                                    alert('Clipboard is empty. Please copy a valid JSON army list file or text.');
-                                    return;
-                                }
-                                
-                                // Check if clipboard contains valid JSON
-                                try {
-                                    const jsonData = JSON.parse(clipboardText);
-                                    
-                                    // Basic validation to check if it looks like an army list
-                                    if (jsonData && (jsonData.faction || jsonData.abilities || jsonData.name)) {
-                                        // Import from clipboard directly
-                                        await processFileData(jsonData);
-                                        return;
-                                    } else {
-                                        console.log('Invalid army list data structure:', jsonData);
-                                        alert('No valid army list data found in clipboard. Please copy a valid JSON army list file or text.');
-                                    }
-                                } catch (jsonError) {
-                                    console.error('Clipboard text error:', jsonError);
-                                    console.error('Clipboard content preview:', clipboardText.substring(0, 200));
-                                    alert('Invalid JSON in clipboard. Please copy a valid JSON army list.');
-                                }
-                            } else {
-                                alert('No JSON file found in clipboard. Please copy a valid JSON army list file to clipboard.');
-                            }
-                            
-                        } catch (clipboardError) {
-                            console.error('Clipboard read error:', clipboardError);
-                            
-                            // Fallback to text reading if file reading fails
-                            if (navigator.clipboard && navigator.clipboard.readText) {
-                                const clipboardText = await navigator.clipboard.readText();
-                                
-                                try {
-                                    const jsonData = JSON.parse(clipboardText);
-                                    
-                                    if (jsonData && (jsonData.faction || jsonData.abilities || jsonData.name)) {
-                                        await processFileData(jsonData);
-                                        return;
-                                    } else {
-                                        alert('No valid army list data found in clipboard. Please copy a valid JSON army list file or text.');
-                                    }
-                                } catch (jsonError) {
-                                    console.error('Clipboard text fallback error:', jsonError);
-                                    alert('No JSON file found in clipboard and clipboard text is not valid JSON. Please copy a valid JSON army list file.');
-                                }
-                            } else {
-                                alert('Clipboard access not available in this browser.');
-                            }
-                        }
-                    } else {
-                        alert('Clipboard access not available in this browser.');
-                    }
-                } catch (clipboardError) {
-                    console.error('Clipboard error:', clipboardError);
-                    alert('Error accessing clipboard. Opening file explorer instead.');
-                    // Fallback to file explorer
-                    document.getElementById('file-input').click();
-                }
+            // Paste URL button
+            document.getElementById('paste-url-btn').addEventListener('click', () => {
+                openModal('paste-url-modal');
             });
 
             // File input
@@ -1786,7 +1711,7 @@
             }
         }
 
-        // Process file data (for both file upload and clipboard import)
+        // Process file data (for file upload)
         async function processFileData(data) {
             try {
                 console.log('Processing file data...');
@@ -1845,9 +1770,19 @@
         async function decodeURLParameter(encodedString) {
             try {
                 console.log('Decoding URL parameter...');
+                console.log('Input length:', encodedString.length);
                 
                 // Step 1: Base64 decode to get bytes
-                const base64String = encodedString.replace(/-/g, '+').replace(/_/g, '/');
+                // Handle URL-safe Base64 characters
+                let base64String = encodedString.replace(/-/g, '+').replace(/_/g, '/');
+                
+                // Fix padding if necessary (Base64 strings should be multiple of 4)
+                while (base64String.length % 4 !== 0) {
+                    base64String += '=';
+                }
+                
+                console.log('Base64 string length after padding:', base64String.length);
+                
                 const binaryString = atob(base64String);
                 const bytes = new Uint8Array(binaryString.length);
                 for (let i = 0; i < binaryString.length; i++) {
@@ -1855,17 +1790,20 @@
                 }
                 console.log('Base64 decoded, bytes length:', bytes.length);
                 
-                // Step 2: Decompress using pako (handles GZIP format)
+                // Step 2: Decompress using pako (GZIP format)
                 const decompressed = pako.inflate(bytes, { to: 'string' });
                 console.log('Decompressed data length:', decompressed.length);
+                console.log('First 200 chars of decompressed data:', decompressed.substring(0, 200));
                 
                 // Step 3: Parse JSON
                 const jsonData = JSON.parse(decompressed);
                 console.log('Successfully parsed JSON from URL');
+                console.log('JSON has roster:', !!jsonData.roster);
                 
                 return jsonData;
             } catch (error) {
                 console.error('Error decoding URL parameter:', error);
+                console.error('Error at stage:', error.message);
                 throw new Error('Failed to decode URL parameter: ' + error.message);
             }
         }
@@ -1873,32 +1811,112 @@
         // Check for URL parameter and load list if present
         async function checkURLParameter() {
             try {
+                const fullUrl = window.location.href;
+                console.log('Full URL:', fullUrl);
+                console.log('URL length:', fullUrl.length);
+                
                 const urlParams = new URLSearchParams(window.location.search);
                 const hash = window.location.hash;
+                
+                console.log('Hash:', hash.substring(0, 100) + '...');
+                console.log('Hash length:', hash.length);
                 
                 // Check both query string and hash fragment
                 let encodedData = null;
                 
                 if (urlParams.has('data')) {
                     encodedData = urlParams.get('data');
-                } else if (hash && hash.includes('/')) {
-                    // Extract the part after the last slash (listforge-json format)
-                    const parts = hash.split('/');
-                    encodedData = parts[parts.length - 1];
+                    console.log('Found data in query parameter');
+                } else if (hash) {
+                    // Handle different hash formats
+                    if (hash.startsWith('#/listforge-json/')) {
+                        // Extract everything after the prefix
+                        encodedData = hash.substring('#/listforge-json/'.length);
+                        console.log('Found data in listforge-json hash format');
+                    } else if (hash.startsWith('#listforge-json/')) {
+                        encodedData = hash.substring('#listforge-json/'.length);
+                        console.log('Found data in alternate hash format');
+                    } else if (hash.includes('/')) {
+                        // Fallback: get everything after last slash
+                        const parts = hash.split('/');
+                        encodedData = parts[parts.length - 1];
+                        console.log('Found data using slash split method');
+                    } else if (hash.length > 1) {
+                        // Just use hash without #
+                        encodedData = hash.substring(1);
+                        console.log('Using entire hash as encoded data');
+                    }
                 }
                 
-                if (encodedData) {
-                    console.log('Found encoded data in URL, attempting to decode...');
+                if (encodedData && encodedData.length > 0) {
+                    console.log('Encoded data length:', encodedData.length);
+                    console.log('First 100 chars:', encodedData.substring(0, 100));
+                    console.log('Attempting to decode...');
+                    
                     const decodedData = await decodeURLParameter(encodedData);
                     await processFileData(decodedData);
+                    
+                    console.log('Successfully loaded list from URL');
                     
                     // Clean up URL after loading
                     const cleanUrl = window.location.origin + window.location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
+                } else {
+                    console.log('No encoded data found in URL');
                 }
             } catch (error) {
                 console.error('Error loading from URL:', error);
-                alert('Error loading list from URL: ' + error.message);
+                console.error('Error stack:', error.stack);
+                alert('Error loading list from URL: ' + error.message + '\n\nCheck the browser console for more details.');
+            }
+        }
+
+        // Load list from pasted URL data
+        async function loadFromPastedURL() {
+            const pastedData = document.getElementById('paste-url-input').value.trim();
+            
+            if (!pastedData) {
+                alert('Please paste the encoded data first.');
+                return;
+            }
+            
+            try {
+                console.log('Loading from pasted data, length:', pastedData.length);
+                
+                // Remove any URL prefix if user pasted the full URL
+                let encodedData = pastedData;
+                
+                // Handle various paste formats
+                if (pastedData.includes('listforge-json/')) {
+                    const parts = pastedData.split('listforge-json/');
+                    encodedData = parts[parts.length - 1];
+                    console.log('Extracted data from full URL');
+                } else if (pastedData.startsWith('#/')) {
+                    encodedData = pastedData.substring(2);
+                    if (encodedData.includes('/')) {
+                        const parts = encodedData.split('/');
+                        encodedData = parts[parts.length - 1];
+                    }
+                    console.log('Extracted data from hash fragment');
+                } else if (pastedData.startsWith('#')) {
+                    encodedData = pastedData.substring(1);
+                    console.log('Removed hash prefix');
+                }
+                
+                console.log('Final encoded data length:', encodedData.length);
+                
+                const decodedData = await decodeURLParameter(encodedData);
+                await processFileData(decodedData);
+                
+                closeModal('paste-url-modal');
+                document.getElementById('paste-url-input').value = '';
+                
+                console.log('Successfully loaded list from pasted data');
+                
+            } catch (error) {
+                console.error('Error loading from pasted data:', error);
+                console.error('Error stack:', error.stack);
+                alert('Error loading list: ' + error.message + '\n\nPlease check that you pasted the complete encoded data.\nSee browser console for details.');
             }
         }
 
@@ -2140,7 +2158,7 @@
 
         // Smooth scrolling for navigation
         function setupSmoothScroll() {
-            // Calculate the sticky bar height (approx 48px for action bar + 8px padding)
+            // Calculate sticky bar height (approx 48px for action bar + 8px padding)
             const stickyOffset = 56;
             
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -3048,11 +3066,6 @@
             openModal('add-ability-modal');
         }
         
-        // Modal helpers
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
@@ -3380,5 +3393,4 @@
         }
     </script>
 </body>
-
 </html>
